@@ -675,13 +675,13 @@
 <div class="container">
 <div class="raised-card reveal">
 <div>
-<p class="eyebrow">Live support so far</p>
+<p class="eyebrow">Support so far</p>
 <h2>See how much we have raised so far.</h2>
 <p>Every contribution helps us buy supplementary books, notebooks, pencils, backpacks, and other school supplies for students in Bangladesh.</p>
 </div>
 <div class="raised-amount-wrap">
-<div class="raised-amount" id="raisedAmount">$0</div>
-<div class="raised-status" id="raisedStatus">Updating from our public fundraising sheet...</div>
+<div class="raised-amount" id="raisedAmount">$25.00</div>
+<div class="raised-status">Raised so far</div>
 </div>
 </div>
 </div>
@@ -804,16 +804,16 @@
     });
 
 
-    const liveSheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRB8SE1teN3lNyZ7ttQl8q4MPlDJN9Y4jqoYLuHTArdixxHW5rGsPfTQ42N-JKzBg/pub?gid=699447065&single=true&output=csv';
+    // Update this number whenever the fundraising total changes.
+    const amountRaised = 25;
     const raisedAmountEl = document.getElementById('raisedAmount');
-    const raisedStatusEl = document.getElementById('raisedStatus');
 
-    function animateCurrencyValue(element, start, end, duration = 1200) {
+    function animateCurrencyValue(element, startValue, endValue, duration = 1200) {
       const startTime = performance.now();
       function frame(now) {
         const progress = Math.min((now - startTime) / duration, 1);
         const eased = 1 - Math.pow(1 - progress, 3);
-        const value = start + (end - start) * eased;
+        const value = startValue + (endValue - startValue) * eased;
         element.textContent = '$' + value.toLocaleString(undefined, {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2
@@ -823,28 +823,7 @@
       requestAnimationFrame(frame);
     }
 
-    async function loadLiveTotal() {
-      try {
-        const response = await fetch(liveSheetUrl, { cache: 'no-store' });
-        if (!response.ok) throw new Error('Network response was not ok');
-        const csv = await response.text();
-        const rows = csv.split(/\r?\n/).map(line => line.split(',').map(cell => cell.replace(/^"|"$/g, '').trim()));
-        const amountRow = rows.find(row => row[0] && row[0].toLowerCase() === 'amount raised');
-        const updatedRow = rows.find(row => row[0] && row[0].toLowerCase() === 'last updated');
-        if (!amountRow || !amountRow[1]) throw new Error('Amount row not found');
-        const numericValue = parseFloat(amountRow[1].replace(/[^\d.\-]/g, '')) || 0;
-        animateCurrencyValue(raisedAmountEl, 0, numericValue);
-        raisedStatusEl.textContent = updatedRow && updatedRow[1]
-          ? 'Live total from our public sheet. Last updated ' + updatedRow[1] + '.'
-          : 'Live total from our public sheet.';
-      } catch (error) {
-        console.error('Could not load live total:', error);
-        raisedAmountEl.textContent = '$25.00';
-        raisedStatusEl.textContent = 'If this preview is opened as a file, the live counter may start working after the website is published online.';
-      }
-    }
-
-    loadLiveTotal();
+    animateCurrencyValue(raisedAmountEl, 0, amountRaised);
 
 
     const revealObserver = new IntersectionObserver(entries => {
